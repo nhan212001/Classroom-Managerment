@@ -1,5 +1,5 @@
 const { db } = require('../config/firebase')
-const { validateUserName, sendOTP, sendSMS, generateOTP, createToken } = require('../utils/comon');
+const { validateUserName, sendOTP, sendSMS, generateOTP, createToken, sendESMS } = require('../utils/comon');
 const bcrypt = require('bcryptjs');
 
 
@@ -31,7 +31,7 @@ const loginCheck = async (req, res) => {
                         expiredAt: new Date(Date.now() + 5 * 60 * 1000),
                         email: user.email
                     });
-                    // sendSMS([user.phone], `Your OTP is: ${otp}`, 2, "")
+                    sendESMS(user.phone, otp);
                     return res.json({ role: user.role, phone: user.phone, otp });
                 } catch (otpError) {
                     return res.status(500).json({ error: 'Create OTP failed', detail: otpError.message });

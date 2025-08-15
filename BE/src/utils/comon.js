@@ -1,7 +1,8 @@
 const twilio = require('twilio')
 const jwt = require('jsonwebtoken');
 
-var https = require('https');
+const https = require('https');
+const axios = require('axios');
 const ACCESS_TOKEN = process.env.SMS_API_KEY;
 
 const validateUserName = (userName) => {
@@ -108,11 +109,44 @@ const sendSMS = (phones, content, type, sender) => {
     req.end();
 }
 
+//esms
+const sendESMS = async (phones, otp) => {
+    const APIKey = process.env.ESMS_API_KEY;
+    const SecretKey = process.env.ESMS_SECRET_KEY;
+    const smsContent = `Ma OTP cua ban la: ${otp}. Hieu luc trong 5 phut.`;
+    console.log(`Sending OTP to ${phones}: ${otp}`);
+
+    try {
+        const url = `https://rest.esms.vn/MainService.svc/json/SendMultipleMessage_V4_get?`
+
+        const payload = {
+            ApiKey: APIKey,
+            SecretKey: SecretKey,
+            // Phone: '0785922236',
+            Phone: phones,
+            Content: smsContent,
+            SmsType: 8
+        }
+
+        const { data } = await axios.get(url, { params: payload });
+        console.log(data);
+        if (data.CodeResult == 100) {
+            console.log('OTP sent successfully!', data);
+        } else {
+            console.error('Error sending OTP:', data.ErrorMessage);
+        }
+    } catch (error) {
+        console.error('Request failed:', error.message);
+    }
+}
+
+
 module.exports = {
     validateUserName,
     validatePhoneNumber,
     sendOTP,
     sendSMS,
     generateOTP,
-    createToken
+    createToken,
+    sendESMS
 };
