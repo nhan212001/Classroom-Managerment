@@ -14,7 +14,7 @@ app.use(morgan("combined"));
 app.use(express.json());
 
 app.use('/auth', authRoutes);
-app.use('/lesson', middlewares.checkToken, lessonRoutes);
+app.use('/lesson', middlewares.checkToken, middlewares.checkInstructor, lessonRoutes);
 app.use('/user', middlewares.checkToken, userRoutes);
 app.use('/enrollment', middlewares.checkToken, enrollmentRoutes);
 

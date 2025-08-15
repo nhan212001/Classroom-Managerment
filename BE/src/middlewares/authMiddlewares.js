@@ -9,6 +9,7 @@ const checkToken = (req, res, next) => {
         req.phone = decoded.phone;
         req.email = decoded.email;
         req.role = decoded.role;
+        req.id = decoded.id;
         next();
     });
 };
@@ -16,7 +17,7 @@ const checkToken = (req, res, next) => {
 const checkInstructor = (req, res, next) => {
     const { role } = req;
     if (role !== 'instructor') {
-        return res.status(403).json({ error: 'Forbidden' });
+        return res.status(403).json({ error: 'Student role is not allowed' });
     }
     next();
 };

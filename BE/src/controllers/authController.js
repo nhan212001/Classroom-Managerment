@@ -1,16 +1,7 @@
 const { db } = require('../config/firebase')
-const { validateUserName, sendOTP, sendSMS, generateOTP } = require('../utils/comon');
-const jwt = require('jsonwebtoken');
+const { validateUserName, sendOTP, sendSMS, generateOTP, createToken } = require('../utils/comon');
 const bcrypt = require('bcryptjs');
 
-const createToken = (user) => {
-    const payload = {
-        phone: user.phone,
-        email: user.email,
-        role: user.role
-    };
-    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
-};
 
 const loginCheck = async (req, res) => {
     try {
@@ -92,7 +83,7 @@ const loginOtp = async (req, res) => {
         const user = userSnapshot.docs[0].data();
         delete user.passwordHash;
         // Tạo JWT token
-        const token = createToken(user);
+        const token = createToken({ ...user, id: userSnapshot.docs[0].id });
         return res.json({ message: 'Login successful', user, token });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -102,10 +93,7 @@ const loginOtp = async (req, res) => {
 const loginPw = async (req, res) => {
     try {
         const { userName, password } = req.body;
-        console.log(userName, password);
-
         const type = validateUserName(userName);
-        console.log('type:', type);
 
         if (type === 'unknown') {
             return res.status(400).json({ error: 'Invalid user name' });
@@ -119,16 +107,14 @@ const loginPw = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
         const user = userSnapshot.docs[0].data();
-        console.log(user);
 
         const hash = await bcrypt.hash(password, 10);
-        console.log('Hashed password:', hash);
 
         if (!bcrypt.compareSync(password, user.passwordHash)) {
             return res.status(400).json({ error: 'Wrong password' });
         }
         delete user.passwordHash;
-        const token = createToken(user);
+        const token = createToken({ ...user, id: userSnapshot.docs[0].id });
         return res.json({ message: 'Login successful', user, token });
     } catch (error) {
         res.status(500).json({ error: error.message });

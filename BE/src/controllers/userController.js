@@ -61,6 +61,15 @@ const addStudent = async (req, res) => {
 const editStudent = async (req, res) => {
     try {
         const { id } = req.params;
+        const student_token_id = req.id;
+        const { role } = req;
+
+        console.log(id, student_token_id, role);
+
+
+        if (role === 'student' && student_token_id !== id) {
+            return res.status(403).json({ error: 'Student not allowed to edit this profile' });
+        }
         const { email, name, phone } = req.body;
         if (!email || !name) {
             return res.status(400).json({ error: 'Email and name are required' });

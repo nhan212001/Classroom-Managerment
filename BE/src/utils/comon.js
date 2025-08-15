@@ -1,4 +1,5 @@
 const twilio = require('twilio')
+const jwt = require('jsonwebtoken');
 
 var https = require('https');
 const ACCESS_TOKEN = process.env.SMS_API_KEY;
@@ -18,6 +19,18 @@ const validateUserName = (userName) => {
 const validatePhoneNumber = (phone) => {
     const phoneRegex = /^\+?\d{9,15}$/;
     return phoneRegex.test(phone);
+};
+
+const createToken = (user) => {
+    console.log('Creating token for user:', user);
+
+    const payload = {
+        id: user.id,
+        phone: user.phone,
+        email: user.email,
+        role: user.role
+    };
+    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' });
 };
 
 const generateOTP = () => {
@@ -100,5 +113,6 @@ module.exports = {
     validatePhoneNumber,
     sendOTP,
     sendSMS,
-    generateOTP
+    generateOTP,
+    createToken
 };
