@@ -34,13 +34,8 @@ const ManageStudents = () => {
         }
     }, [error]);
 
-    const handleDelete = async (id) => {
-        try {
-            await dispatch(deleteUser(id)).unwrap();
-            dispatch(getAllStudents());
-        } catch (error) {
-            console.error("Failed to delete student:", error);
-        }
+    const handleDelete = (id) => {
+        dispatch(deleteUser(id))
     };
 
     const handleEdit = (student) => {
@@ -63,7 +58,7 @@ const ManageStudents = () => {
         });
     };
 
-    const handleSave = async () => {
+    const handleSave = () => {
         if (!modalData.student?.name || !modalData.student?.email) {
             toast.error("Name and email are required");
             return;
@@ -76,25 +71,23 @@ const ManageStudents = () => {
             toast.error("Invalid phone number format");
             return;
         }
-        try {
-            if (modalData.isEdit) {
-                await dispatch(editUser(modalData.student)).unwrap()
-            } else {
-                await dispatch(addStudent(modalData.student)).unwrap()
-            }
-            dispatch(getAllStudents());
-            setModalData({
-                showModal: false,
-                isEdit: false,
-                student: {
-                    email: "",
-                    name: "",
-                    phone: ""
-                }
-            });
-        } catch (error) {
-            console.error("Failed to edit student:", error);
+
+        if (modalData.isEdit) {
+            dispatch(editUser(modalData.student)).unwrap()
+        } else {
+            dispatch(addStudent(modalData.student)).unwrap()
         }
+        // dispatch(getAllStudents());
+        setModalData({
+            showModal: false,
+            isEdit: false,
+            student: {
+                email: "",
+                name: "",
+                phone: ""
+            }
+        });
+
     };
 
     const handleCancel = () => {
@@ -211,7 +204,7 @@ const ManageStudents = () => {
                 </div>
                 <div className="flex justify-end gap-2 mt-6">
                     <button onClick={() => setModalData({ ...modalData, showModal: false })} className="px-4 py-1 rounded border">Cancel</button>
-                    <button onClick={handleSave} disabled={!modalData.student?.name || !modalData.student?.email || loading} className="px-4 py-1 rounded bg-blue-500 text-white">Save</button>
+                    <button onClick={handleSave} disabled={loading} className="px-4 py-1 rounded bg-blue-500 text-white">Save</button>
                 </div>
             </Modal>
 

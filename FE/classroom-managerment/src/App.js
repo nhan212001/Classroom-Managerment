@@ -9,6 +9,7 @@ import { verifyToken } from './apis/authApi';
 import ManageStudents from './components/ManageStudent';
 import { USER_ROLE } from './common/constant';
 import Modal from 'react-modal';
+import ManageLesson from './components/ManageLesson';
 
 function App() {
   const loggedIn = useSelector(selectLoggedIn);
@@ -39,7 +40,7 @@ function App() {
         {role === USER_ROLE.INSTRUCTOR && (
           <Route path="manage-student" element={<ManageStudents />} />
         )}
-        {/* <Route path="courses" element={<Courses />} /> */}
+        <Route path="manage-lesson" element={<ManageLesson />} />
       </Route>
       <Route path="/" element={<Navigate to="/login" replace />} />
     </Routes>

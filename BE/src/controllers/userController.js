@@ -118,7 +118,7 @@ const deleteStudent = async (req, res) => {
             db.collection('users').doc(id).delete()
         ]);
 
-        res.json({ message: 'Student deleted successfully' });
+        res.json({ message: 'Student deleted successfully', id });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

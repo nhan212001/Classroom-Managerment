@@ -59,7 +59,7 @@ const deleteEnrollment = async (req, res) => {
     try {
         const { id } = req.params;
         await db.collection('enrollments').doc(id).delete();
-        res.status(204).json({ message: 'Enrollment deleted successfully' });
+        res.status(200).json({ message: 'Enrollment deleted successfully', id });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

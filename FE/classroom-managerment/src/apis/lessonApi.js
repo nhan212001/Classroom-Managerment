@@ -9,7 +9,7 @@ const getAllLesson = createAsyncThunk(
                 method: 'GET',
                 url: '/lesson'
             });
-            return response.data;
+            return response;
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response?.data || error.message);
         }
@@ -25,7 +25,7 @@ const createLesson = createAsyncThunk(
                 url: '/lesson',
                 data: { name, description, duration }
             });
-            return response.data;
+            return response;
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response?.data || error.message);
         }
@@ -41,7 +41,7 @@ const editLesson = createAsyncThunk(
                 url: `/lesson/${id}`,
                 data: { name, description, duration }
             });
-            return response.data;
+            return response;
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response?.data || error.message);
         }
@@ -56,7 +56,7 @@ const deleteLesson = createAsyncThunk(
                 method: 'DELETE',
                 url: `/lesson/${id}`
             });
-            return response.data;
+            return response;
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response?.data || error.message);
         }

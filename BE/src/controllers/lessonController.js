@@ -47,6 +47,10 @@ const editLesson = async (req, res) => {
             duration
         } = req.body;
 
+        if (!name) {
+            return res.status(400).json({ message: 'Name is required' });
+        }
+
         const existingLesson = await db.collection('lesson')
             .where('name', '==', name)
             .get();
@@ -80,7 +84,7 @@ const deleteLesson = async (req, res) => {
                     return batch.commit();
                 })
         ]);
-        res.status(204).send();
+        res.status(200).json({ message: 'Lesson deleted successfully', id });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

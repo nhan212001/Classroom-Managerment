@@ -11,7 +11,7 @@ import { selectLoadingStudents } from "../slices/studentSlice";
 const ProfileModal = () => {
     const user = useSelector(selectUser)
     const isOpen = useSelector(selectProfilePopupOpen)
-    const isLoading = useSelector(selectLoadingStudents)
+    const loading = useSelector(selectLoadingStudents)
 
     const dispatch = useDispatch();
     const [profile, setProfile] = useState(user || { id: '', name: '', email: '', phone: '' });
@@ -82,7 +82,7 @@ const ProfileModal = () => {
             </div>
             <div className="flex justify-end gap-2 mt-6">
                 <button onClick={handleClose} className="px-4 py-1 rounded border">Cancel</button>
-                <button onClick={handleSave} disabled={isLoading || !profile?.name || !profile?.email} className="px-4 py-1 rounded bg-blue-500 text-white">Save</button>
+                <button onClick={handleSave} disabled={loading || !profile?.name || !profile?.email} className="px-4 py-1 rounded bg-blue-500 text-white">Save</button>
             </div>
         </Modal>
     );

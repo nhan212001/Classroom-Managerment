@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import studentReducer from './slices/studentSlice';
 import popupReducer from './slices/popupSlice';
+import lessonReducer from './slices/lessonSlice';
 
 
 const logger = store => next => action => {
@@ -15,7 +16,8 @@ const store = configureStore({
     reducer: {
         auth: authReducer,
         student: studentReducer,
-        popup: popupReducer
+        popup: popupReducer,
+        lesson: lessonReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
 });

@@ -22,8 +22,6 @@ const studentSlice = createSlice({
                 state.error = null;
             })
             .addCase(getAllStudents.fulfilled, (state, action) => {
-                console.log('Fetched students:', action.payload);
-
                 state.loading = false;
                 state.students = action.payload;
             })
@@ -37,7 +35,7 @@ const studentSlice = createSlice({
             })
             .addCase(addStudent.fulfilled, (state, action) => {
                 state.loading = false;
-                // state.students.push(action.payload);
+                state.students.push(action.payload);
             })
             .addCase(addStudent.rejected, (state, action) => {
                 state.loading = false;
@@ -49,6 +47,10 @@ const studentSlice = createSlice({
             })
             .addCase(editUser.fulfilled, (state, action) => {
                 state.loading = false;
+                const index = state.students.findIndex(student => student.id === action.payload.id);
+                if (index !== -1) {
+                    state.students[index] = { ...state.students[index], ...action.payload };
+                }
             })
             .addCase(editUser.rejected, (state, action) => {
                 state.loading = false;
@@ -60,6 +62,7 @@ const studentSlice = createSlice({
             })
             .addCase(deleteUser.fulfilled, (state, action) => {
                 state.loading = false;
+                state.students = state.students.filter(student => student.id !== action.payload.id);
             })
             .addCase(deleteUser.rejected, (state, action) => {
                 state.loading = false;

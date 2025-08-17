@@ -27,7 +27,7 @@ const Dashboard = () => {
                 <nav className="flex-1 p-4 space-y-2">
                     {role === USER_ROLE.INSTRUCTOR && (
                         <Link to="manage-student" className="block py-2 px-4 rounded hover:bg-blue-100 text-gray-700 font-medium">Manage Students</Link>)}
-                    <Link to="courses" className="block py-2 px-4 rounded hover:bg-blue-100 text-gray-700 font-medium">Courses</Link>
+                    <Link to="manage-lesson" className="block py-2 px-4 rounded hover:bg-blue-100 text-gray-700 font-medium">Manage Lesson</Link>
                     <Link to="message" className="block py-2 px-4 rounded hover:bg-blue-100 text-gray-700 font-medium">Message</Link>
                 </nav>
             </aside>
