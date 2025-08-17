@@ -1,5 +1,6 @@
 const { db } = require('../config/firebase')
 const { Timestamp, FieldValue, Filter, FieldPath } = require('firebase-admin/firestore');
+const { validateEmail, validatePhoneNumber } = require('../utils/comon');
 
 const getAllUsers = async (req, res) => {
     try {
@@ -31,6 +32,12 @@ const addStudent = async (req, res) => {
         if (!email || !name) {
             return res.status(400).json({ error: 'Email and name are required' });
         }
+        if (!validateEmail(email)) {
+            return res.status(400).json({ error: 'Invalid email format' });
+        }
+        if (!validatePhoneNumber(phone)) {
+            return res.status(400).json({ error: 'Invalid phone number format' });
+        }
         const snapshot = await db.collection('users').where(
             Filter.or(
                 Filter.where('email', '==', email),
@@ -52,7 +59,8 @@ const addStudent = async (req, res) => {
             status: 'inactive',
         };
         const docRef = await db.collection('users').add(newStudent);
-        res.status(201).json({ id: docRef.id, ...newStudent });
+        const student = await db.collection('users').doc(docRef.id).get();
+        res.status(201).json({ id: docRef.id, ...student.data() });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -64,15 +72,18 @@ const editStudent = async (req, res) => {
         const student_token_id = req.id;
         const { role } = req;
 
-        console.log(id, student_token_id, role);
-
-
         if (role === 'student' && student_token_id !== id) {
             return res.status(403).json({ error: 'Student not allowed to edit this profile' });
         }
         const { email, name, phone } = req.body;
         if (!email || !name) {
             return res.status(400).json({ error: 'Email and name are required' });
+        }
+        if (!validateEmail(email)) {
+            return res.status(400).json({ error: 'Invalid email format' });
+        }
+        if (!validatePhoneNumber(phone)) {
+            return res.status(400).json({ error: 'Invalid phone number format' });
         }
 
         const snapshot = await db.collection('users').where(
@@ -90,7 +101,7 @@ const editStudent = async (req, res) => {
             return res.status(400).json({ error: 'Email or phone already exists' });
         }
 
-        await db.collection('users').doc(id).update({ email, name, phone });
+        await db.collection('users').doc(id).update({ email, name, phone, updatedAt: new Date() });
         res.json({ id, email, name, phone });
     } catch (error) {
         res.status(500).json({ error: error.message });

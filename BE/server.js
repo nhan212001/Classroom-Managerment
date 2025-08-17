@@ -6,10 +6,14 @@ const fs = require('fs');
 const port = process.env.PORT || 3000;
 
 const httpsOptions = {
-    key: fs.readFileSync('./src/config/server.key'),
-    cert: fs.readFileSync('./src/config/server.cert')
+    key: fs.readFileSync('./src/config/localhost-key.pem'),
+    cert: fs.readFileSync('./src/config/localhost.pem')
 };
 
 https.createServer(httpsOptions, app).listen(port, () => {
     console.log(`Server running at https://localhost:${port}`);
 });
+
+// app.listen(port, () => {
+//     console.log(`Server running at http://localhost:${port}`);
+// });

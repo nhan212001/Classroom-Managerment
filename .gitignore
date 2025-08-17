@@ -14,6 +14,7 @@ node_modules/
 key.json
 *.cert
 *.key
+*.pem
 
 # Misc
 .DS_Store

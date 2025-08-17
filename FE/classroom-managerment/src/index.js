@@ -5,12 +5,19 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { Provider } from 'react-redux';
 import store from './store';
+import { ToastContainer } from 'react-toastify';
+import { BrowserRouter } from 'react-router-dom';
+import ProfileModal from './components/ProfileModal';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <BrowserRouter>
+        <App />
+        <ToastContainer />
+        <ProfileModal />
+      </BrowserRouter>
     </Provider>
   </React.StrictMode>
 );

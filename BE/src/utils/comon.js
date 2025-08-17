@@ -9,7 +9,7 @@ const validateUserName = (userName) => {
     let type;
     if (validatePhoneNumber(userName)) {
         type = 'phone'; // Đây là số điện thoại
-    } else if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userName)) {
+    } else if (validateEmail(userName)) {
         type = 'email'; // Đây là email
     } else {
         type = 'unknown'; // Không xác định
@@ -20,6 +20,11 @@ const validateUserName = (userName) => {
 const validatePhoneNumber = (phone) => {
     const phoneRegex = /^\+?\d{9,15}$/;
     return phoneRegex.test(phone);
+};
+
+const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
 };
 
 const createToken = (user) => {
@@ -144,6 +149,7 @@ const sendESMS = async (phones, otp) => {
 module.exports = {
     validateUserName,
     validatePhoneNumber,
+    validateEmail,
     sendOTP,
     sendSMS,
     generateOTP,

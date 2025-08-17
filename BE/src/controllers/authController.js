@@ -1,6 +1,7 @@
 const { db } = require('../config/firebase')
 const { validateUserName, sendOTP, sendSMS, generateOTP, createToken, sendESMS } = require('../utils/comon');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken')
 
 
 const loginCheck = async (req, res) => {
@@ -31,7 +32,7 @@ const loginCheck = async (req, res) => {
                         expiredAt: new Date(Date.now() + 5 * 60 * 1000),
                         email: user.email
                     });
-                    sendESMS(user.phone, otp);
+                    // sendESMS(user.phone, otp);
                     return res.json({ role: user.role, phone: user.phone, otp });
                 } catch (otpError) {
                     return res.status(500).json({ error: 'Create OTP failed', detail: otpError.message });
@@ -84,7 +85,7 @@ const loginOtp = async (req, res) => {
         delete user.passwordHash;
         // Tạo JWT token
         const token = createToken({ ...user, id: userSnapshot.docs[0].id });
-        return res.json({ message: 'Login successful', user, token });
+        return res.json({ message: 'Login successful', user: { ...user, id: userSnapshot.docs[0].id }, token });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -107,15 +108,19 @@ const loginPw = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
         const user = userSnapshot.docs[0].data();
-
         const hash = await bcrypt.hash(password, 10);
 
-        if (!bcrypt.compareSync(password, user.passwordHash)) {
+        console.log('hash', hash);
+
+
+        if (!bcrypt.compareSync(password, user?.passwordHash || '')) {
             return res.status(400).json({ error: 'Wrong password' });
         }
+        console.log();
+
         delete user.passwordHash;
         const token = createToken({ ...user, id: userSnapshot.docs[0].id });
-        return res.json({ message: 'Login successful', user, token });
+        return res.json({ message: 'Login successful', user: { ...user, id: userSnapshot.docs[0].id }, token });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -138,9 +143,37 @@ const createOtp = async (req, res) => {
     }
 };
 
+const verifyToken = async (req, res) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
+
+    if (!token) {
+        return res.status(401).json({ error: 'No token provided' });
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const id = decoded.id;
+        const userData = await db.collection('users').doc(id).get();
+        const user = userData.data();
+        delete user.passwordHash;
+
+        return res.json({
+            message: 'Token is valid',
+            user: {
+                ...user,
+                id
+            },
+            token
+        });
+    } catch (error) {
+        return res.status(403).json({ error: 'Failed to authenticate token' });
+    }
+};
+
 module.exports = {
     loginCheck,
     loginOtp,
     loginPw,
+    verifyToken,
     createOtp
 };
