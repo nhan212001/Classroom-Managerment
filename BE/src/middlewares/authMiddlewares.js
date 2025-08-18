@@ -14,6 +14,24 @@ const checkToken = (req, res, next) => {
     });
 };
 
+const checkResetPasswordToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
+    if (!token) return res.status(403).json({ error: 'No token provided' });
+
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) return res.status(401).json({ error: 'Unauthorized' });
+        req.id = decoded.id;
+        req.name = decoded.name;
+        req.resetPassword = decoded.resetPassword;
+        req.email = decoded.email;
+        if (!req.resetPassword) {
+            return res.status(403).json({ error: 'Invalid reset password token' });
+        }
+        next();
+    });
+};
+
 const checkInstructor = (req, res, next) => {
     const { role } = req;
     if (role !== 'instructor') {
@@ -22,4 +40,4 @@ const checkInstructor = (req, res, next) => {
     next();
 };
 
-module.exports = { checkToken, checkInstructor };
+module.exports = { checkToken, checkInstructor, checkResetPasswordToken };

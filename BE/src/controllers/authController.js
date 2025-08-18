@@ -84,6 +84,7 @@ const loginOtp = async (req, res) => {
         const user = userSnapshot.docs[0].data();
         delete user.passwordHash;
         const token = createToken({ ...user, id: userSnapshot.docs[0].id });
+        await db.collection('accessCodes').doc(user.phone).delete();
         return res.json({ message: 'Login successful', user: { ...user, id: userSnapshot.docs[0].id }, token });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -169,10 +170,43 @@ const verifyToken = async (req, res) => {
     }
 };
 
+const resetPassword = async (req, res) => {
+    const { password } = req.body;
+    const token = req.headers['authorization'].startsWith('Bearer ') ? req.headers['authorization'].split(' ')[1] : req.headers['authorization'];
+    const { id, name, email } = req;
+    if (!password) {
+        return res.status(400).json({ error: 'Password is required' });
+    }
+    if (!id || !name || !email) {
+        return res.status(400).json({ error: 'Invalid reset password token' });
+    }
+    try {
+        const user = await db.collection('users').doc(req.id).get()
+        if (!user.exists) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        if (user.data().resetPasswordToken !== token) {
+            return res.status(400).json({ error: 'Token not found in user document' });
+        }
+
+        await db.collection('users').doc(req.id).update({
+            passwordHash: await bcrypt.hash(password, 10),
+            resetPasswordToken: null,
+            status: 'active'
+        });
+
+        return res.json({ message: 'Password reset successful' });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     loginCheck,
     loginOtp,
     loginPw,
     verifyToken,
-    createOtp
+    createOtp,
+    resetPassword
 };

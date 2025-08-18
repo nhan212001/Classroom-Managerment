@@ -12,10 +12,13 @@ export const callApi = async ({
     url,
     data,
     params,
+    token,
     useToken = true
 }) => {
     try {
-        const headers = useToken ? { Authorization: `Bearer ${localStorage.getItem("token")}` } : {};
+        const headers = useToken ? {
+            Authorization: `Bearer ${token || localStorage.getItem("token")}`
+        } : {};
         const response = await axiosClient.request({
             method,
             url,

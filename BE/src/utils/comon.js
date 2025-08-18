@@ -1,5 +1,7 @@
 const twilio = require('twilio')
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+const { MailtrapTransport } = require("mailtrap");
 
 const https = require('https');
 const axios = require('axios');
@@ -145,6 +147,44 @@ const sendESMS = async (phones, otp) => {
     }
 }
 
+const sendEmail = async (to, subject, content) => {
+    // const TOKEN = "f2c44a9ca1ed971f36bc5e5871601db4";
+    const TOKEN = process.env.MAIL_TRAP_TOKEN;
+
+    const transport = nodemailer.createTransport(
+        MailtrapTransport({
+            token: TOKEN,
+        })
+    );
+
+    const sender = {
+        address: "hello@demomailtrap.co",
+        name: "Classroom management",
+    };
+
+    const recipients = [
+        to,
+    ];
+
+    transport
+        .sendMail({
+            from: sender,
+            to: recipients,
+            subject: subject,
+            text: content,
+            category: "Integration Test",
+        })
+        .then(console.log, console.error);
+};
+
+const createResetPasswordToken = ({ id, name, email, phone }) => {
+    const token = jwt.sign(
+        { id, name, email, phone, resetPassword: true },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+    );
+    return token;
+};
 
 module.exports = {
     validateUserName,
@@ -154,5 +194,7 @@ module.exports = {
     sendSMS,
     generateOTP,
     createToken,
-    sendESMS
+    sendESMS,
+    sendEmail,
+    createResetPasswordToken
 };

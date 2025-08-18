@@ -1,6 +1,7 @@
 const { db } = require('../config/firebase')
-const { Timestamp, FieldValue, Filter, FieldPath } = require('firebase-admin/firestore');
-const { validateEmail, validatePhoneNumber } = require('../utils/comon');
+const jwt = require('jsonwebtoken');
+const { Filter, FieldPath } = require('firebase-admin/firestore');
+const { validateEmail, validatePhoneNumber, sendEmail, createResetPasswordToken } = require('../utils/comon');
 
 const getAllUsers = async (req, res) => {
     try {
@@ -58,8 +59,24 @@ const addStudent = async (req, res) => {
             updatedAt: new Date(),
             status: 'inactive',
         };
+
         const docRef = await db.collection('users').add(newStudent);
         const student = await db.collection('users').doc(docRef.id).get();
+
+        const createPasswordToken = createResetPasswordToken({
+            id: docRef.id,
+            name,
+            email,
+            phone
+        })
+
+        await db.collection('users').doc(docRef.id).update({
+            resetPasswordToken: createPasswordToken
+        });
+
+        sendEmail(email, 'Welcome to Classroom Management', `Hello ${name},\n\nThank you for registering as a student. 
+                Click ${process.env.FE_URL}/reset-password?token=${createPasswordToken} here to set your password.
+            `);
         res.status(201).json({ id: docRef.id, ...student.data() });
     } catch (error) {
         res.status(500).json({ error: error.message });

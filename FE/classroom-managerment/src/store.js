@@ -1,5 +1,5 @@
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './slices/authSlice';
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import authReducer, { logout } from './slices/authSlice';
 import studentReducer from './slices/studentSlice';
 import popupReducer from './slices/popupSlice';
 import lessonReducer from './slices/lessonSlice';
@@ -13,14 +13,23 @@ const logger = store => next => action => {
     return result;
 };
 
+const appReducer = combineReducers({
+    auth: authReducer,
+    student: studentReducer,
+    popup: popupReducer,
+    lesson: lessonReducer,
+    enrollment: enrollmentReducer
+});
+
+const rootReducer = (state, action) => {
+    if (action.type === logout.type) {
+        return appReducer(undefined, action);
+    }
+    return appReducer(state, action);
+};
+
 const store = configureStore({
-    reducer: {
-        auth: authReducer,
-        student: studentReducer,
-        popup: popupReducer,
-        lesson: lessonReducer,
-        enrollment: enrollmentReducer
-    },
+    reducer: rootReducer,
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
 });
 

@@ -1,5 +1,5 @@
 import './App.css';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import { useEffect } from 'react';
@@ -11,12 +11,14 @@ import { USER_ROLE } from './common/constant';
 import ManageLesson from './components/ManageLesson';
 import ManageEnrollment from './components/ManageEnrollment';
 import Modal from 'react-modal'
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   const loggedIn = useSelector(selectLoggedIn);
   const role = useSelector(selectRole);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   Modal.setAppElement('#root');
 
@@ -28,14 +30,17 @@ function App() {
 
   useEffect(() => {
     if (!loggedIn) {
-      dispatch(logout());
-      navigate('/login');
+      if (location.pathname !== "/login" && location.pathname !== "/reset-password") {
+        dispatch(logout());
+        navigate("/login");
+      }
     }
   }, [loggedIn]);
 
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/dashboard" element={<Dashboard />}>
         <Route index element={<Navigate to={role === USER_ROLE.INSTRUCTOR ? "manage-student" : "manage-enrollment"} replace />} />
         {role === USER_ROLE.INSTRUCTOR && (

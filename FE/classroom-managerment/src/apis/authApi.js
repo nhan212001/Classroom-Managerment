@@ -64,4 +64,18 @@ const verifyToken = createAsyncThunk(
     }
 );
 
-export { checkUserForLogin, loginOtp, loginPassword, verifyToken }
+const resetPassword = async (token, password) => {
+    try {
+        const response = await callApi({
+            method: 'POST',
+            url: '/auth/reset-password',
+            data: { password },
+            token: token
+        });
+        return response;
+    } catch (error) {
+        throw error.response?.data || error.message;
+    }
+}
+
+export { checkUserForLogin, loginOtp, loginPassword, verifyToken, resetPassword }
