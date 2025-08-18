@@ -50,7 +50,7 @@ const Dashboard = () => {
                         </div>
                     </div>
                 </header>
-                <main className="flex-1 p-8">
+                <main className="flex-1 p-8 max-h-full overflow-auto">
                     <Outlet />
                 </main>
             </div>

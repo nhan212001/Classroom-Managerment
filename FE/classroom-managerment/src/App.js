@@ -12,6 +12,7 @@ import ManageLesson from './components/ManageLesson';
 import ManageEnrollment from './components/ManageEnrollment';
 import Modal from 'react-modal'
 import ResetPassword from './pages/ResetPassword';
+import ManageChat from './components/ManageChat';
 
 function App() {
   const loggedIn = useSelector(selectLoggedIn);
@@ -50,6 +51,7 @@ function App() {
           </>
         )}
         <Route path="manage-enrollment" element={<ManageEnrollment />} />
+        <Route path="message" element={<ManageChat />} />
       </Route>
       <Route path="/" element={<Navigate to="/login" replace />} />
     </Routes>

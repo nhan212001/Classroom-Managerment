@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const lessonRoutes = require('./routes/lessonRoutes');
 const userRoutes = require('./routes/userRoutes');
 const enrollmentRoutes = require('./routes/enrollmentsRoutes');
+const chatsRoutes = require('./routes/chatRoutes');
 
 const middlewares = require('./middlewares/authMiddlewares');
 
@@ -23,6 +24,6 @@ app.use('/auth', authRoutes);
 app.use('/lesson', middlewares.checkToken, middlewares.checkInstructor, lessonRoutes);
 app.use('/user', middlewares.checkToken, userRoutes);
 app.use('/enrollment', middlewares.checkToken, enrollmentRoutes);
-
+app.use('/chat', middlewares.checkToken, chatsRoutes);
 
 module.exports = app;

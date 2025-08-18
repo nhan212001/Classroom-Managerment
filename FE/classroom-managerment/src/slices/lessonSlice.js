@@ -39,7 +39,6 @@ const lessonSlice = createSlice({
             })
             .addCase(createLesson.rejected, (state, action) => {
                 state.loading = false;
-                console.log("Create lesson failed:", action.payload);
                 state.error = action.payload.error;
             }).addCase(editLesson.pending, (state) => {
                 state.loading = true;
@@ -61,8 +60,6 @@ const lessonSlice = createSlice({
                 state.error = null;
             })
             .addCase(deleteLesson.fulfilled, (state, action) => {
-                console.log("Lesson deleted:", action.payload);
-
                 state.loading = false;
                 state.lessons = state.lessons.filter(lesson => lesson.id !== action.payload.id);
             })

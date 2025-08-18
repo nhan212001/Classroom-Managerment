@@ -4,6 +4,7 @@ import studentReducer from './slices/studentSlice';
 import popupReducer from './slices/popupSlice';
 import lessonReducer from './slices/lessonSlice';
 import enrollmentReducer from './slices/enrollmentSlice';
+import chatsReducer from './slices/chatSlice';
 
 
 const logger = store => next => action => {
@@ -18,7 +19,8 @@ const appReducer = combineReducers({
     student: studentReducer,
     popup: popupReducer,
     lesson: lessonReducer,
-    enrollment: enrollmentReducer
+    enrollment: enrollmentReducer,
+    chat: chatsReducer
 });
 
 const rootReducer = (state, action) => {

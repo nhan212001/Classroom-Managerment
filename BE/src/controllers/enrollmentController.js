@@ -1,5 +1,5 @@
 const { db } = require('../config/firebase');
-const { Filter } = require('firebase-admin/firestore');
+const { Filter, Timestamp } = require('firebase-admin/firestore');
 
 const addEnrollment = async (req, res) => {
     try {
@@ -23,7 +23,7 @@ const addEnrollment = async (req, res) => {
                 studentId,
                 lessonId,
                 isDone: false,
-                createdAt: new Date()
+                createdAt: Timestamp.now()
             });
             const newEnrollment = {
                 id: enrollmentRef.id,
@@ -46,9 +46,6 @@ const changeEnrollmentStatus = async (req, res) => {
     try {
         const { id } = req.params;
         const { isDone } = req.body;
-
-        console.log('isDone', isDone);
-
 
         let convertedIsDone = isDone;
         if (typeof isDone !== 'boolean') {
@@ -83,7 +80,7 @@ const getEnrollmentByStudent = async (req, res) => {
         const { id } = req.params;
         const snapshot = await db.collection('enrollments').where('studentId', '==', id).get();
         if (snapshot.empty) {
-            return res.status(404).json({ error: 'No enrollments found for this student' });
+            return res.status(200).json([]);
         }
         const enrollments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         await Promise.all(enrollments.map(async (enrollment) => {

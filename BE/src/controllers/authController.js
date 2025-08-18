@@ -1,3 +1,4 @@
+const { Timestamp } = require('firebase-admin/firestore');
 const { db } = require('../config/firebase')
 const { validateUserName, sendOTP, sendSMS, generateOTP, createToken, sendESMS } = require('../utils/comon');
 const bcrypt = require('bcryptjs');
@@ -73,7 +74,7 @@ const loginOtp = async (req, res) => {
         if (otpData.code !== otp) {
             return res.status(400).json({ error: 'OTP not found' });
         }
-        if (new Date() > otpData.expiredAt.toDate()) {
+        if (Timestamp.now().seconds > otpData.expiredAt?.seconds) {
             return res.status(400).json({ error: 'OTP expired' });
         }
 
@@ -110,13 +111,9 @@ const loginPw = async (req, res) => {
         const user = userSnapshot.docs[0].data();
         const hash = await bcrypt.hash(password, 10);
 
-        console.log('hash', hash);
-
-
         if (!bcrypt.compareSync(password, user?.passwordHash || '')) {
             return res.status(400).json({ error: 'Wrong password' });
         }
-        console.log();
 
         delete user.passwordHash;
         const token = createToken({ ...user, id: userSnapshot.docs[0].id });

@@ -1,6 +1,6 @@
 const { db } = require('../config/firebase')
 const jwt = require('jsonwebtoken');
-const { Filter, FieldPath } = require('firebase-admin/firestore');
+const { Filter, FieldPath, Timestamp } = require('firebase-admin/firestore');
 const { validateEmail, validatePhoneNumber, sendEmail, createResetPasswordToken } = require('../utils/comon');
 
 const getAllUsers = async (req, res) => {
@@ -55,8 +55,8 @@ const addStudent = async (req, res) => {
             name,
             phone,
             role: 'student',
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now(),
             status: 'inactive',
         };
 
@@ -118,7 +118,7 @@ const editStudent = async (req, res) => {
             return res.status(400).json({ error: 'Email or phone already exists' });
         }
 
-        await db.collection('users').doc(id).update({ email, name, phone, updatedAt: new Date() });
+        await db.collection('users').doc(id).update({ email, name, phone, updatedAt: Timestamp.now() });
         res.json({ id, email, name, phone });
     } catch (error) {
         res.status(500).json({ error: error.message });

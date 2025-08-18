@@ -30,8 +30,6 @@ const validateEmail = (email) => {
 };
 
 const createToken = (user) => {
-    console.log('Creating token for user:', user);
-
     const payload = {
         id: user.id,
         phone: user.phone,
