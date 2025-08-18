@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import studentReducer from './slices/studentSlice';
 import popupReducer from './slices/popupSlice';
 import lessonReducer from './slices/lessonSlice';
+import enrollmentReducer from './slices/enrollmentSlice';
 
 
 const logger = store => next => action => {
@@ -17,7 +18,8 @@ const store = configureStore({
         auth: authReducer,
         student: studentReducer,
         popup: popupReducer,
-        lesson: lessonReducer
+        lesson: lessonReducer,
+        enrollment: enrollmentReducer
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
 });

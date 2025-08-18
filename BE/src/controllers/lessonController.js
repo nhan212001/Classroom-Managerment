@@ -1,3 +1,4 @@
+const { Filter, FieldPath } = require('firebase-admin/firestore');
 const { db } = require('../config/firebase');
 
 const getAllLessons = async (req, res) => {
@@ -17,14 +18,14 @@ const addLesson = async (req, res) => {
             duration
         } = req.body;
         if (!name) {
-            return res.status(400).json({ message: 'Name is required' });
+            return res.status(400).json({ error: 'Name is required' });
         }
         const existingLesson = await db.collection('lesson')
             .where('name', '==', name)
             .get();
 
         if (!existingLesson.empty) {
-            return res.status(400).json({ message: 'Lesson with this name already exists' });
+            return res.status(400).json({ error: 'Lesson with this name already exists' });
         }
 
         const lessonRef = await db.collection('lesson').add({
@@ -48,15 +49,16 @@ const editLesson = async (req, res) => {
         } = req.body;
 
         if (!name) {
-            return res.status(400).json({ message: 'Name is required' });
+            return res.status(400).json({ error: 'Name is required' });
         }
 
         const existingLesson = await db.collection('lesson')
             .where('name', '==', name)
+            .where(FieldPath.documentId(), '!=', id)
             .get();
 
         if (!existingLesson.empty) {
-            return res.status(400).json({ message: 'Lesson with this name already exists' });
+            return res.status(400).json({ error: 'Lesson with this name already exists' });
         }
 
         await db.collection('lesson').doc(id).update({

@@ -6,11 +6,11 @@ const addEnrollment = async (req, res) => {
         const { studentId, lessonId } = req.body;
         const studentSnapshot = await db.collection('users').doc(studentId).get();
         if (!studentSnapshot.exists) {
-            return res.status(404).json({ message: 'Student not found' });
+            return res.status(404).json({ error: 'Student not found' });
         }
         const lessonSnapshot = await db.collection('lesson').doc(lessonId).get();
         if (!lessonSnapshot.exists) {
-            return res.status(404).json({ message: 'Lesson not found' });
+            return res.status(404).json({ error: 'Lesson not found' });
         }
         const existingAssignment = await db.collection('enrollments')
             .where('studentId', '==', studentId)
@@ -19,16 +19,24 @@ const addEnrollment = async (req, res) => {
             .get();
 
         if (existingAssignment.empty) {
-            await db.collection('enrollments').add({
+            const enrollmentRef = await db.collection('enrollments').add({
                 studentId,
                 lessonId,
                 isDone: false,
                 createdAt: new Date()
             });
+            const newEnrollment = {
+                id: enrollmentRef.id,
+                studentId,
+                lessonId,
+                isDone: false,
+                studentName: studentSnapshot.data().name,
+                lessonName: lessonSnapshot.data().name
+            };
+            res.status(200).json({ message: 'Lesson assigned successfully', enrollment: newEnrollment });
         } else {
-            return res.status(400).json({ message: 'Student already assigned this lesson' });
+            return res.status(400).json({ error: 'Student already assigned this lesson' });
         }
-        res.status(200).json({ message: 'Lesson assigned successfully' });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -39,17 +47,22 @@ const changeEnrollmentStatus = async (req, res) => {
         const { id } = req.params;
         const { isDone } = req.body;
 
-        let convertedIsDone;
-        if (isDone === "true") {
-            convertedIsDone = true;
-        } else if (isDone === "false") {
-            convertedIsDone = false;
-        } else {
-            return res.status(400).json({ message: 'Invalid isDone value' });
+        console.log('isDone', isDone);
+
+
+        let convertedIsDone = isDone;
+        if (typeof isDone !== 'boolean') {
+            if (isDone === "true") {
+                convertedIsDone = true;
+            } else if (isDone === "false") {
+                convertedIsDone = false;
+            } else {
+                return res.status(400).json({ error: 'Invalid isDone value' });
+            }
         }
 
         await db.collection('enrollments').doc(id).update({ isDone: convertedIsDone });
-        res.status(200).json({ message: 'Enrollment status updated successfully' });
+        res.status(200).json({ message: 'Enrollment status updated successfully', enrollment: { id, isDone: convertedIsDone } });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -70,9 +83,15 @@ const getEnrollmentByStudent = async (req, res) => {
         const { id } = req.params;
         const snapshot = await db.collection('enrollments').where('studentId', '==', id).get();
         if (snapshot.empty) {
-            return res.status(404).json({ message: 'No enrollments found for this student' });
+            return res.status(404).json({ error: 'No enrollments found for this student' });
         }
         const enrollments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        await Promise.all(enrollments.map(async (enrollment) => {
+            const studentSnapshot = await db.collection('users').doc(enrollment.studentId).get();
+            const lessonSnapshot = await db.collection('lesson').doc(enrollment.lessonId).get();
+            enrollment.studentName = studentSnapshot.data().name;
+            enrollment.lessonName = lessonSnapshot.data().name;
+        }));
         res.json(enrollments);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -83,6 +102,12 @@ const getAllEnrollments = async (req, res) => {
     try {
         const snapshot = await db.collection('enrollments').get();
         const enrollments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        await Promise.all(enrollments.map(async (enrollment) => {
+            const studentSnapshot = await db.collection('users').doc(enrollment.studentId).get();
+            const lessonSnapshot = await db.collection('lesson').doc(enrollment.lessonId).get();
+            enrollment.studentName = studentSnapshot.data().name;
+            enrollment.lessonName = lessonSnapshot.data().name;
+        }));
         res.json(enrollments);
     } catch (error) {
         res.status(500).json({ error: error.message });

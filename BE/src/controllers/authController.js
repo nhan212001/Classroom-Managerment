@@ -83,7 +83,6 @@ const loginOtp = async (req, res) => {
         const userSnapshot = await userQuery.get();
         const user = userSnapshot.docs[0].data();
         delete user.passwordHash;
-        // Tạo JWT token
         const token = createToken({ ...user, id: userSnapshot.docs[0].id });
         return res.json({ message: 'Login successful', user: { ...user, id: userSnapshot.docs[0].id }, token });
     } catch (error) {

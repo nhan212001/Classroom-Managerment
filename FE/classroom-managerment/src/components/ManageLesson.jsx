@@ -79,7 +79,7 @@ const ManageLesson = () => {
         <div className="p-6 bg-white shadow rounded-lg">
             <h2 className="text-xl font-semibold mb-4">Manage Lessons</h2>
             <div className="flex justify-between items-center mb-4">
-                <p className="font-medium"> Lessons</p>
+                <p className="font-medium">{lessons?.length} Lessons</p>
                 <div className="flex gap-2">
                     <button
                         onClick={handleAdd}
@@ -87,7 +87,6 @@ const ManageLesson = () => {
                     >
                         + Add Lesson
                     </button>
-                    <button className="border px-4 py-1 rounded hover:bg-gray-50">Filter</button>
                 </div>
             </div>
 

@@ -8,11 +8,11 @@ const ACCESS_TOKEN = process.env.SMS_API_KEY;
 const validateUserName = (userName) => {
     let type;
     if (validatePhoneNumber(userName)) {
-        type = 'phone'; // Đây là số điện thoại
+        type = 'phone';
     } else if (validateEmail(userName)) {
-        type = 'email'; // Đây là email
+        type = 'email';
     } else {
-        type = 'unknown'; // Không xác định
+        type = 'unknown';
     }
     return type;
 };

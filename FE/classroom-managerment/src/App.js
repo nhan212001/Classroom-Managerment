@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import { useEffect } from 'react';
@@ -8,8 +8,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { verifyToken } from './apis/authApi';
 import ManageStudents from './components/ManageStudent';
 import { USER_ROLE } from './common/constant';
-import Modal from 'react-modal';
 import ManageLesson from './components/ManageLesson';
+import ManageEnrollment from './components/ManageEnrollment';
+import Modal from 'react-modal'
 
 function App() {
   const loggedIn = useSelector(selectLoggedIn);
@@ -36,11 +37,14 @@ function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />}>
-        <Route index element={<Navigate to={role === USER_ROLE.INSTRUCTOR ? "manage-student" : ""} replace />} />
+        <Route index element={<Navigate to={role === USER_ROLE.INSTRUCTOR ? "manage-student" : "manage-enrollment"} replace />} />
         {role === USER_ROLE.INSTRUCTOR && (
-          <Route path="manage-student" element={<ManageStudents />} />
+          <>
+            <Route path="manage-student" element={<ManageStudents />} />
+            <Route path="manage-lesson" element={<ManageLesson />} />
+          </>
         )}
-        <Route path="manage-lesson" element={<ManageLesson />} />
+        <Route path="manage-enrollment" element={<ManageEnrollment />} />
       </Route>
       <Route path="/" element={<Navigate to="/login" replace />} />
     </Routes>

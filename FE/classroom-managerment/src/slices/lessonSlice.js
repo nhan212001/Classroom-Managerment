@@ -27,7 +27,7 @@ const lessonSlice = createSlice({
             })
             .addCase(getAllLesson.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload;
+                state.error = action.payload.error;
             })
             .addCase(createLesson.pending, (state) => {
                 state.loading = true;
@@ -39,7 +39,8 @@ const lessonSlice = createSlice({
             })
             .addCase(createLesson.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload;
+                console.log("Create lesson failed:", action.payload);
+                state.error = action.payload.error;
             }).addCase(editLesson.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -53,7 +54,7 @@ const lessonSlice = createSlice({
             })
             .addCase(editLesson.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload;
+                state.error = action.payload.error;
             })
             .addCase(deleteLesson.pending, (state) => {
                 state.loading = true;
@@ -67,7 +68,7 @@ const lessonSlice = createSlice({
             })
             .addCase(deleteLesson.rejected, (state, action) => {
                 state.loading = false;
-                state.error = action.payload;
+                state.error = action.payload.error;
             });
     }
 });

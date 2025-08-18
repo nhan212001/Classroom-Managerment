@@ -10,7 +10,7 @@ const addEnrollment = createAsyncThunk(
                 url: '/enrollment',
                 data: { studentId, lessonId }
             });
-            return response.data;
+            return response;
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response?.data || error.message);
         }
@@ -25,7 +25,7 @@ const getEnrollmentByStudentId = createAsyncThunk(
                 method: 'GET',
                 url: `/enrollment/student/${studentId}`
             });
-            return response.data;
+            return response;
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response?.data || error.message);
         }
@@ -40,7 +40,7 @@ const getAllEnrollments = createAsyncThunk(
                 method: 'GET',
                 url: '/enrollment'
             });
-            return response.data;
+            return response;
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response?.data || error.message);
         }
@@ -56,7 +56,7 @@ const changeEnrollmentStatus = createAsyncThunk(
                 url: `/enrollment/${enrollmentId}`,
                 data: { isDone }
             });
-            return response.data;
+            return response;
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response?.data || error.message);
         }
@@ -71,7 +71,7 @@ const deleteEnrollment = createAsyncThunk(
                 method: 'DELETE',
                 url: `/enrollment/${enrollmentId}`
             });
-            return response.data;
+            return response;
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response?.data || error.message);
         }

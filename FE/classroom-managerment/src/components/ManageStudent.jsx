@@ -73,9 +73,9 @@ const ManageStudents = () => {
         }
 
         if (modalData.isEdit) {
-            dispatch(editUser(modalData.student)).unwrap()
+            dispatch(editUser(modalData.student))
         } else {
-            dispatch(addStudent(modalData.student)).unwrap()
+            dispatch(addStudent(modalData.student))
         }
         // dispatch(getAllStudents());
         setModalData({
@@ -118,7 +118,7 @@ const ManageStudents = () => {
         <div className="p-6 bg-white shadow rounded-lg">
             <h2 className="text-xl font-semibold mb-4">Manage Students</h2>
             <div className="flex justify-between items-center mb-4">
-                <p className="font-medium"> Students</p>
+                <p className="font-medium">{students?.length} Students</p>
                 <div className="flex gap-2">
                     <button
                         onClick={handleAdd}
@@ -126,7 +126,6 @@ const ManageStudents = () => {
                     >
                         + Add Student
                     </button>
-                    <button className="border px-4 py-1 rounded hover:bg-gray-50">Filter</button>
                 </div>
             </div>
 
