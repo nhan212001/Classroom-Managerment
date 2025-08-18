@@ -58,3 +58,7 @@ Screenshot  #Screenshot app UI
 2. Install dependencies: `npm install`
 3. Create `.env` file like `.env.example`
 4. Start app: `npm start`
+
+### Postman
+
+1. Here is my postman link: https://restless-crater-426691.postman.co/workspace/pos~d6890460-e2b6-4982-8f21-9b11e6f3f7a4/collection/26154991-87b6ee17-cd0b-42f6-b0e6-4553c2b675bb?action=share&source=copy-link&creator=26154991
