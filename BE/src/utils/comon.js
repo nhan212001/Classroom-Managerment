@@ -146,7 +146,6 @@ const sendESMS = async (phones, otp) => {
 }
 
 const sendEmail = async (to, subject, content) => {
-    // const TOKEN = "f2c44a9ca1ed971f36bc5e5871601db4";
     const TOKEN = process.env.MAIL_TRAP_TOKEN;
 
     const transport = nodemailer.createTransport(
