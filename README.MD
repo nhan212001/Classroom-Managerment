@@ -48,9 +48,16 @@ Screenshot  #Screenshot app UI
 
 1. `cd BE`
 2. Install dependencies: `npm install`
-3. Dowload key files and put in `src/config/` here: https://drive.google.com/drive/folders/15v5xDqGpeyDwcra15hZI7LGBDsuVDx0j?usp=drive_link
-4. Dowload `.env` file from link above
+3. Dowload `key.json` and `.env` here: https://drive.google.com/drive/folders/15v5xDqGpeyDwcra15hZI7LGBDsuVDx0j?usp=drive_link
+4. Put `key.json` in `BE/src/config` and `.env` in `BE/`
 5. Start server: `npm run dev`
+
+### HTTPS
+1. Dowload mkcert at https://github.com/FiloSottile/mkcert/releases
+2. Open terminal where you put mkcert.exe
+3. `mkcert -install`
+4. `mkcert localhost`
+5. Copy `localhost.pem`, `localhost-key.pem` and put in `BE/src/config/`
 
 ### Frontend
 
