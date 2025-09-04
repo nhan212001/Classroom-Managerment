@@ -10,6 +10,9 @@ const checkToken = (req, res, next) => {
         req.email = decoded.email;
         req.role = decoded.role;
         req.id = decoded.id;
+        if (decoded.role !== 'instructor' && decoded.role !== 'student') {
+            return res.status(403).json({ error: 'Invalid role' });
+        }
         next();
     });
 };

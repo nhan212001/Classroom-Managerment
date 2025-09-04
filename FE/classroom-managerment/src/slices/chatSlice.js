@@ -4,6 +4,7 @@ import { getChatsByUserId, getMessagesByChatId, createChat, sendMessage } from '
 const initialState = {
     chats: [],
     messages: [],
+    selectedChat: null,
     loading: false,
     error: null,
 }
@@ -13,7 +14,25 @@ const chatSlice = createSlice({
     initialState,
     reducers: {
         addMessage: (state, action) => {
-            state.messages.push(action.payload);
+            const { chatId, message } = action.payload;
+            if (state.selectedChat && state.selectedChat.id === chatId) {
+                state.messages.push(message);
+            }
+            const idx = state.chats.findIndex(chat => chat.id === chatId);
+            if (idx !== -1) {
+                state.chats[idx] = {
+                    ...state.chats[idx],
+                    lastMessage: message.text,
+                    lastUpdated: message.createdAt,
+                    senderId: message.senderId
+                };
+                state.chats.sort(
+                    (a, b) => (b.lastUpdated?._seconds || 0) - (a.lastUpdated?._seconds || 0)
+                );
+            }
+        },
+        setSelectedChat: (state, action) => {
+            state.selectedChat = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -56,8 +75,20 @@ const chatSlice = createSlice({
             })
             .addCase(sendMessage.fulfilled, (state, action) => {
                 state.loading = false;
-                const { message } = action.payload;
-                state.messages.push(message);
+                const { chat, message } = action.payload;
+                if (state.selectedChat && state.selectedChat.id === chat.id) {
+                    state.messages.push(message);
+                }
+                const idx = state.chats.findIndex(c => c.id === chat.id);
+                if (idx !== -1) {
+                    state.chats[idx] = {
+                        ...state.chats[idx],
+                        lastMessage: message.text,
+                        lastUpdated: message.createdAt,
+                        senderId: message.senderId
+                    };
+                    state.chats.sort((a, b) => (b.lastUpdated?._seconds || 0) - (a.lastUpdated?._seconds || 0));
+                }
             })
             .addCase(sendMessage.rejected, (state, action) => {
                 state.loading = false;
@@ -66,10 +97,11 @@ const chatSlice = createSlice({
     },
 });
 
-export const { addMessage } = chatSlice.actions;
+export const { addMessage, setSelectedChat } = chatSlice.actions;
 export const selectChats = (state) => state.chat.chats;
 export const selectMessages = (state) => state.chat.messages;
 export const selectLoadingChat = (state) => state.chat.loading;
 export const selectErrorChat = (state) => state.chat.error;
+export const selectSelectedChat = (state) => state.chat.selectedChat;
 
 export default chatSlice.reducer;

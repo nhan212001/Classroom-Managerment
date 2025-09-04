@@ -2,14 +2,13 @@
 import { useState, useEffect } from "react";
 import Modal from "react-modal";
 import { useDispatch, useSelector } from "react-redux";
-import { addMessage, selectChats, selectErrorChat, selectLoadingChat, selectMessages } from "../slices/chatSlice";
+import { addMessage, selectChats, selectErrorChat, selectLoadingChat, selectMessages, selectSelectedChat, setSelectedChat } from "../slices/chatSlice";
 import { createChat, getChatsByUserId, getMessagesByChatId, sendMessage } from "../apis/chatApi";
-import { selectUser } from "../slices/authSlice";
+import { selectRole, selectUser } from "../slices/authSlice";
 import { selectStudents } from "../slices/studentSlice";
 import { toast } from "react-toastify";
 import socket from "../socket";
-
-const SOCKET_URL = process.env.REACT_APP_BE_URL;
+import { USER_ROLE } from "../common/constant";
 
 const Chat = () => {
     const chats = useSelector(selectChats);
@@ -17,10 +16,11 @@ const Chat = () => {
     const loading = useSelector(selectLoadingChat);
     const error = useSelector(selectErrorChat);
     const user = useSelector(selectUser);
+    const role = useSelector(selectRole);
     const students = useSelector(selectStudents);
+    const selectedChat = useSelector(selectSelectedChat);
     const dispatch = useDispatch();
 
-    const [selectedChat, setSelectedChat] = useState({});
     const [text, setText] = useState("");
     const [modalData, setModalData] = useState({
         showModal: false,
@@ -39,20 +39,19 @@ const Chat = () => {
 
             socket.emit("register", user.id);
 
-            socket.on("newMessage", (data) => {
+            const handleNewMessage = (data) => {
                 const { chatId, message } = data;
+                dispatch(addMessage({ chatId, message }));
+            };
 
-                if (chatId === selectedChat.id) {
-                    dispatch(addMessage(message));
-                }
-            });
+            socket.on("newMessage", handleNewMessage);
 
+            return () => {
+                socket.off("newMessage", handleNewMessage);
+            };
         }
-        return () => {
-            socket.off("newMessage");
-        };
 
-    }, [user, selectedChat]);
+    }, [user]);
 
     useEffect(() => {
         if (selectedChat?.id) {
@@ -64,7 +63,7 @@ const Chat = () => {
         if (selectedChat?.id && user.id && text.trim()) {
             const receiverId = user.id === selectedChat.instructorId ? selectedChat.studentId : selectedChat.instructorId;
             dispatch(sendMessage({ chatId: selectedChat.id, senderId: user.id, receiverId, text: text.trim() }));
-            setText(""); // Reset input after sending
+            setText("");
         }
     };
 
@@ -77,29 +76,50 @@ const Chat = () => {
 
     return (
         <div className="flex h-[700px] bg-white rounded shadow overflow-hidden">
-            <div className="w-64 border-r bg-gray-50 p-4 overflow-y-auto">
+            <div className="w-80 border-r bg-gray-50 p-4 overflow-y-auto">
                 <ul>
-                    {chats?.map((chat) => (
-                        <li
-                            key={chat.id}
-                            className={`p-2 rounded cursor-pointer mb-2 ${selectedChat?.id === chat.id ? "bg-blue-100" : "hover:bg-gray-200"}`}
-                            onClick={() => {
-                                setSelectedChat(chat);
-                                setText("");
-                            }}
-                        >
-                            {chat.contactName}
-                        </li>
-                    ))}
+                    {chats?.map((chat) => {
+                        const lastMsgTime = chat.lastUpdated?._seconds
+                            ? new Date(chat.lastUpdated._seconds * 1000).toLocaleTimeString()
+                            : '';
+                        return (
+                            <li
+                                key={chat.id}
+                                className={`p-2 rounded cursor-pointer mb-2 ${selectedChat?.id === chat.id ? "bg-blue-100" : "hover:bg-gray-200"}`}
+                                onClick={() => {
+                                    dispatch(setSelectedChat(chat));
+                                    setText("");
+                                }}
+                            >
+                                <div className="font-semibold text-gray-800 truncate">{chat.contactName}</div>
+                                {chat.senderId ?
+                                    (<div className="flex justify-between text-xs text-black mt-1">
+                                        <span>
+                                            {chat.senderId == user.id ? 'You: ' : ''}
+                                            {chat.lastMessage && chat.lastMessage.length > 30
+                                                ? chat.lastMessage.slice(0, 30) + '...'
+                                                : chat.lastMessage}
+                                        </span>
+                                        <span className="text-gray-400"> {lastMsgTime}</span>
+                                    </div>)
+                                    : <div className="flex justify-between text-xs text-black mt-1">
+                                        <span>Click to start chat </span>
+                                    </div>
+                                }
+                            </li>
+                        );
+                    })}
                 </ul>
-                <div className="mt-6">
-                    <button
-                        className="bg-green-500 text-white px-4 py-2 rounded w-full"
-                        onClick={() => setModalData({ ...modalData, showModal: true })}
-                    >
-                        Create chat with student
-                    </button>
-                </div>
+                {role === USER_ROLE.INSTRUCTOR &&
+                    <div className="mt-6">
+                        <button
+                            className="bg-green-500 text-white px-4 py-2 rounded w-full"
+                            onClick={() => setModalData({ ...modalData, showModal: true })}
+                        >
+                            Create chat with student
+                        </button>
+                    </div>
+                }
             </div>
             {selectedChat?.id && (
                 <div className="flex-1 flex flex-col">

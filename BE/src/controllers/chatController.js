@@ -14,6 +14,9 @@ const createChat = async (req, res) => {
         await db.collection('chats').doc(roomId).set({
             instructorId,
             studentId,
+            lastMessage: '',
+            lastUpdated: Timestamp.now(),
+            senderId: null
         }, {
             merge: true
         });
@@ -91,9 +94,22 @@ const saveMessage = async (req, res) => {
             text,
             createdAt: Timestamp.now()
         };
-        const messageRef = await db.collection('chats').doc(chatId).collection('messages').add(message);
-        emitToUser(receiverId, 'newMessage', { chatId, message: { id: messageRef.id, ...message } });
-        res.status(201).json({ message: { id: messageRef.id, ...message } });
+        const chatRef = db.collection('chats').doc(chatId);
+        const messageRef = await chatRef.collection('messages').add(message);
+        await chatRef.set({ lastMessage: message.text, lastUpdated: message.createdAt, senderId }, { merge: true });
+
+        const updatedChat = await chatRef.get();
+        emitToUser(receiverId, 'newMessage', {
+            chatId,
+            message: { id: messageRef.id, ...message },
+        });
+
+        res.status(201).json({
+            chat: {
+                id: chatId,
+                ...updatedChat.data()
+            }, message: { id: messageRef.id, ...message }
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

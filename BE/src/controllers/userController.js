@@ -128,12 +128,22 @@ const editStudent = async (req, res) => {
 const deleteStudent = async (req, res) => {
     try {
         const { id } = req.params;
-        await Promise.all([
-            db.collection('enrollments').where('studentId', '==', id).get().then(snapshot => {
-                snapshot.forEach(doc => doc.ref.delete());
-            }),
-            db.collection('users').doc(id).delete()
-        ]);
+
+        const promises = [];
+
+        promises.push(db.collection("users").doc(id).delete());
+
+        const enrollSnap = await db.collection("enrollments").where("studentId", "==", id).get();
+        enrollSnap.forEach(doc => promises.push(doc.ref.delete()));
+
+        const chatsSnap = await db.collection("chats").where("studentId", "==", id).get();
+        for (const chatDoc of chatsSnap.docs) {
+            const messagesSnap = await chatDoc.ref.collection("messages").get();
+            messagesSnap.forEach(msgDoc => promises.push(msgDoc.ref.delete()));
+            promises.push(chatDoc.ref.delete());
+        }
+
+        await Promise.all(promises);
 
         res.json({ message: 'Student deleted successfully', id });
     } catch (error) {
